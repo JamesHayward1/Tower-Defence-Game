@@ -1,0 +1,19 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: lightblue;
+  font-family: game;
+}
+
+canvas {
+  display: block;
+
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  
+  border: 3px solid;
+}
