@@ -22,7 +22,7 @@ let gameFont;
 let gameFont1;
 
 // global variables
-let map = 0;
+let map = 1;
 let start = false;
 let mapSelection = true;
 let health = 100;
@@ -32,6 +32,10 @@ let levelUnderway = false;
 let towerArray = [];
 let enemyArray = [];
 let infoScreen = false;
+let levels;
+let spawning = false;
+let spawnCountdown = 0;
+let levelChange = true;
 
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
@@ -40,6 +44,7 @@ function preload() {
   mapOnePreview = loadImage("Images/mapOnePreview.png")
   gameFont = loadFont("Fonts/gameFont.ttf")
   gameFont1 = loadFont("Fonts/gameFont1.ttf")
+  levels = loadStrings("levels.txt")
   // archer tower
   archer1 = loadImage("Images/Archer/archer1.png")
   archer2 = loadImage("Images/Archer/archer2.png")
@@ -76,6 +81,19 @@ function draw() {
       // display map 3
     }
   }
+  if (spawning) {
+    spawnEnemies()
+  }
+  // checks whether a level is underway
+  if (enemyArray.length == 0) {
+    levelUnderway = false
+    if (!levelChange) {
+      level++
+      levelChange = true
+    }
+  } else {
+    levelUnderway = true
+  }
   imageMode(CENTER);
 
   if (toggles.inputs) {
@@ -110,7 +128,20 @@ function mouseClicked() {
   } else if (mapSelection == false) {
     // level start
     if (mouseX > 1012.5 && mouseX < 1012.5 + 140 && mouseY > 545 && mouseY < 545 + 40) {
-      console.log("start level")
+      if (levelUnderway == false) {
+        let notPlayable = false
+        for (let i = 0; i < towerArray.length; i++) {
+          let identifier = towerArray[i]
+          if (!identifier.placed) {
+            notPlayable = true
+            break;
+          }
+        }
+        if (!notPlayable) {
+          spawning = true
+          levelChange = false
+        }
+      }
     }
 
     // placing towers
@@ -186,13 +217,6 @@ function keyPressed() {
       if (keyCode == 27) {
         identifier.selected = false
       }
-    }
-  }
-
-  // spawning towers
-  if (start && mapSelection == false) {
-    if (keyCode == 32) {
-      enemyArray.push(new enemy(465, -50, 1, 1, 1, 3, "down"))
     }
   }
 }
@@ -522,4 +546,19 @@ function infoMenu() {
   text("There are 50 levels which scale in difficulty. If you complete the 50th level without losing all your health, you win the game", width/2, 470)
   textSize(30)
   text("Press escape to close this menu", width/2, 530)
+}
+
+function spawnEnemies() {
+  let data = levels[level - 1]
+  if (spawnCountdown % 30 == 0) {
+    let health = data.substring(spawnCountdown / 30, (spawnCountdown / 30) + 1)
+    // spawn ememy
+    enemyArray.push(new enemy(465, -50, health, 1, 1, 3, "down"))
+  }
+  spawnCountdown++
+  // stops spawning enemies once all spawned
+  if (spawnCountdown / 30 == data.length) {
+    spawning = false
+    spawnCountdown = 0
+  }
 }
