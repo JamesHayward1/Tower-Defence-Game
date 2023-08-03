@@ -100,6 +100,9 @@ function draw() {
   } else {
     levelUnderway = true
   }
+  if (health <= 0) {
+    end = true
+  }
   if (end) {
     endMenu()
   }
@@ -442,6 +445,7 @@ function processes() {
         identifier.show()
         if (identifier.y >= 650) {
           enemyArray.splice(i, 1)
+          health = health - identifier.health
         }
       }
     }
@@ -462,7 +466,11 @@ function outputs() {
 
     // health bar
     fill(255, 255, 255)
-    text("Health: " + health + "/100", 1087.5, 30)
+    if (health <= 0) {
+      text("Health: 0/100", 1087.5, 30)
+    } else {
+      text("Health: " + health + "/100", 1087.5, 30)
+    }
     // level
     text("Level: " + level, 1087.5, 110)
     // currency 
@@ -573,7 +581,9 @@ function spawnEnemies() {
   if (spawnCountdown % 30 == 0) {
     let health = data.substring(spawnCountdown / 30, (spawnCountdown / 30) + 1)
     // spawn ememy
-    enemyArray.push(new enemy(465, -50, health, 1, 1, 3, "down"))
+    if (map == 1) {
+      enemyArray.push(new enemy(465, -50, health, 1, 1, 3, "down"))
+    }
   }
   spawnCountdown++
   // stops spawning enemies once all spawned
@@ -607,7 +617,11 @@ function endMenu() {
   }
   textSize(25)
   text("Level: " + level, width/2, 270)
-  text("Health: " + health + "/100", width/2, 305)
+  if (health <= 0) {
+    text("Health: 0/100", width/2, 305)
+  } else {
+    text("Health: " + health + "/100", width/2, 305)
+  }
   text("Currency: £" + currency, width/2, 340)
   text("Press spacebar to go back to the main menu", width/2, 420)
 }  
