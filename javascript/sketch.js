@@ -36,6 +36,7 @@ let levels;
 let spawning = false;
 let spawnCountdown = 0;
 let levelChange = true;
+let end = false;
 
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
@@ -88,11 +89,18 @@ function draw() {
   if (enemyArray.length == 0) {
     levelUnderway = false
     if (!levelChange) {
-      level++
-      levelChange = true
+      if (level != 50) {
+        level++
+        levelChange = true
+      } else {
+        end = true
+      }
     }
   } else {
     levelUnderway = true
+  }
+  if (end) {
+    endMenu()
   }
   imageMode(CENTER);
 
@@ -201,6 +209,13 @@ function keyPressed() {
   } else if (infoScreen) {
     if (keyCode == 27) {
       infoScreen = false
+    }
+  }
+
+  // back to main menu from end screen
+  if (end) {
+    if (keyCode == 32) {
+      restart()
     }
   }
   
@@ -443,7 +458,7 @@ function outputs() {
 
     // health bar
     fill(255, 255, 255)
-    text("Health: " + health + " /100", 1087.5, 30)
+    text("Health: " + health + "/100", 1087.5, 30)
     // level
     text("Level: " + level, 1087.5, 110)
     // currency 
@@ -561,4 +576,38 @@ function spawnEnemies() {
     spawning = false
     spawnCountdown = 0
   }
+}
+
+function endMenu() {
+  toggles = {
+    inputs: false,
+    processes: false,
+    outputs: false,
+  } 
+  background(mapSelectionBG)
+  
+  rectMode(CENTER)
+  textSize(50)
+  fill(85, 142, 153)
+  rect(width/2, 75, 350, 90, 20)
+  fill(255, 255, 255)
+  text("Game Over", width/2, 65)
+  rectMode(CORNER)
+
+  textSize(35)
+  if (health <= 0) {
+    text("Your health reached zero", width / 2, 200)
+  } else {
+    text("You completed the game!", width / 2, 200)
+  }
+  textSize(25)
+  text("Level: " + level, width/2, 270)
+  text("Health: " + health + "/100", width/2, 305)
+  text("Currency: £" + currency, width/2, 340)
+  text("Press spacebar to go back to the main menu", width/2, 420)
+}  
+
+function restart() {
+  // reset all variables to go back to main menu
+  console.log("Main menu")
 }

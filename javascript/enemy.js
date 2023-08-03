@@ -32,7 +32,7 @@ class enemy {
         } else if (this.health == 9) {
             fill(116, 177, 218)
         }
-        rect(this.x, this.y, 30, 30)
+        rect(this.x, this.y, 30, 30, 5)
         rectMode(CORNER)
         fill(256, 256, 256)
     }
