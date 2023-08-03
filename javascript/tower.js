@@ -1,6 +1,6 @@
 class tower {
     
-    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown, cost) {
+    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown, cost, enemyX, enemyY, active, counter) {
         this.x = x;
         this.y = y;
         this.placed = placed;
@@ -12,6 +12,10 @@ class tower {
         this.damage = damage;
         this.cooldown = cooldown;
         this.cost = cost;
+        this.enemyX = enemyX;
+        this.enemyY = enemyY;
+        this.active = active; // becomes false when the tower is in its cooldown
+        this.counter = counter; // counts up to the cooldownn of the tower
     }
 
     show() {
@@ -25,6 +29,10 @@ class tower {
             if (this.placed == false) {
                 ellipse(this.x, this.y, this.radius)
                 image(archer1, this.x, this.y, 32, 64)
+                fill(255, 255, 255)
+                textAlign(CENTER, CENTER); 
+                textSize(25)
+                text("Press escape to cancel", width/2, 570)
             } else if (this.placed) {
                 if (this.level == 1) {
                     image(archer1, this.x, this.y, 32, 64)

@@ -31,6 +31,7 @@ let currency = 50;
 let levelUnderway = false;
 let towerArray = [];
 let enemyArray = [];
+let bulletArray = [];
 let infoScreen = false;
 let levels;
 let spawning = false;
@@ -62,7 +63,7 @@ function draw() {
   imageMode(CORNER)
   rectMode(CORNER)
 
-  // draws background correcsponding to what menu you are in
+  // draws background corresponding to what menu you are in
   if (start == false) {
     background(mainMenuBG)
     mainMenu()
@@ -93,6 +94,11 @@ function draw() {
         level++
         levelChange = true
         currency += 50
+        for (let i = 0; i < towerArray.length; i++) {
+          let towerID = towerArray[i]
+          towerID.active = true
+          towerID.counter = 0
+        }
       } else {
         end = true
       }
@@ -181,7 +187,7 @@ function mouseClicked() {
       }
       // archer tower
       if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 1, 50))
+        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0))
       }
     }
    
@@ -389,56 +395,48 @@ function processes() {
         identifier.show()
         if (identifier.y >= 103) {
           identifier.stage = 2
-          identifier.direction = "right"
         }
       } else if (identifier.stage == 2) {
         identifier.x += identifier.speed
         identifier.show()
         if (identifier.x >= 705) {
           identifier.stage = 3
-          identifier.direction = "down"
         }
       } else if (identifier.stage == 3) {
         identifier.y += identifier.speed
         identifier.show()
         if (identifier.y >= 223) {
           identifier.stage = 4
-          identifier.direction = "left"
         }
       } else if (identifier.stage == 4) {
         identifier.x -= identifier.speed
         identifier.show()
         if (identifier.x <= 555) {
           identifier.stage = 5
-          identifier.direction = "down"
         }
       } else if (identifier.stage == 5) {
         identifier.y += identifier.speed
         identifier.show()
         if (identifier.y >= 343) {
           identifier.stage = 6
-          identifier.direction = "right"
         }
       } else if (identifier.stage == 6) {
         identifier.x -= identifier.speed
         identifier.show()
         if (identifier.x <= 435) {
           identifier.stage = 7
-          identifier.direction = "down"
         }
       } else if (identifier.stage == 7) {
         identifier.y += identifier.speed
         identifier.show()
         if (identifier.y >= 493) {
           identifier.stage = 8
-          identifier.direction = "right"
         }
       } else if (identifier.stage == 8) {
         identifier.x += identifier.speed
         identifier.show()
         if (identifier.x >= 735) {
           identifier.stage = 9
-          identifier.direction = "down"
         }
       } else if (identifier.stage == 9) {
         identifier.y += identifier.speed
@@ -447,6 +445,85 @@ function processes() {
           enemyArray.splice(i, 1)
           health = health - identifier.health
         }
+      }
+    }
+  }
+
+  // detecting enemies in attack radius
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    for (let j = 0; j < enemyArray.length; j++) {
+      let enemyID = enemyArray[j]
+      let distance = dist(towerID.x, towerID.y, enemyID.x, enemyID.y)
+      if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
+        towerID.enemyX = enemyID.x
+        towerID.enemyY = enemyID.y
+        // calculations for different tower types
+        if (towerID.type == "Archer") {
+          let xChange = towerID.enemyX - towerID.x
+          let yChange = towerID.enemyY - towerID.y
+          let bulletSpeed = 20
+          let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
+          xChange = xChange * scaleFactor
+          yChange = yChange * scaleFactor
+          bulletArray.push(new bullet(towerID.x, towerID.y, xChange, yChange, towerID))
+          towerID.active = false
+        }
+      }
+    }
+  }
+
+  // attacking enemies
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (towerID.enemyX != null && towerID.enemyY != null) {
+      // archer tower
+      if (towerID.type == "Archer") {
+        for (let j = 0; j < bulletArray.length; j++) {
+          let bulletID = bulletArray[j]
+          bulletID.x += bulletID.xChange
+          bulletID.y += bulletID.yChange
+          bulletID.show()
+        }
+      }
+    }
+  }
+
+  // bullet and enemy collision
+  for (let i = 0; i < enemyArray.length; i++) {
+    let enemyID = enemyArray[i]
+    for (let j = 0; j < bulletArray.length; j++) {
+      let bulletID = bulletArray[j] 
+      let distance = dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y)
+      if (distance <= 15) {
+        let towerID = bulletID.assignedTower
+        bulletArray.splice(j, 1)
+        enemyID.health -= towerID.damage
+        if (enemyID.health <= 0) {
+          enemyArray.splice(i, 1)
+        }
+        towerID.enemyX = null
+        towerID.enemyY = null
+      }
+    }
+  }
+
+  // delete bullets that go off screen
+  for (let i = 0; i < bulletArray.length; i++) {
+    let bulletID = bulletArray[i]
+    if (bulletID.x < 0 || bulletID.x > 1200 || bulletID.y < 0 || bulletID.y > 600) {
+      bulletArray.splice(i, 1)
+    }
+  }
+
+  // tower cooldown 
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (!towerID.active) {
+      towerID.counter++
+      if (towerID.counter >= towerID.cooldown) {
+        towerID.active = true
+        towerID.counter = 0
       }
     }
   }
@@ -582,7 +659,7 @@ function spawnEnemies() {
     let health = data.substring(spawnCountdown / 30, (spawnCountdown / 30) + 1)
     // spawn ememy
     if (map == 1) {
-      enemyArray.push(new enemy(465, -50, health, 1, 1, 3, "down"))
+      enemyArray.push(new enemy(465, -50, health, 1, 3))
     }
   }
   spawnCountdown++
