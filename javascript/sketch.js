@@ -27,7 +27,7 @@ let start = false;
 let mapSelection = true;
 let health = 100;
 let level = 1;
-let currency = 999999;
+let currency = 50;
 let levelUnderway = false;
 let towerArray = [];
 let enemyArray = [];
@@ -92,6 +92,7 @@ function draw() {
       if (level != 50) {
         level++
         levelChange = true
+        currency += 50
       } else {
         end = true
       }
@@ -157,7 +158,10 @@ function mouseClicked() {
       let identifier = towerArray[i]
       if (identifier.placable) {
         if (identifier.placed == false) {
-          identifier.placed = true
+          if (identifier.cost <= currency) {
+            identifier.placed = true
+            currency = currency - identifier.cost
+          }
         }
       }
     }
@@ -174,7 +178,7 @@ function mouseClicked() {
       }
       // archer tower
       if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 1))
+        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 1, 50))
       }
     }
    
@@ -475,8 +479,9 @@ function outputs() {
 
     // towers 
     textSize(15)
+    // archer tower
     image(archer1, ((1200 - 975) / 4) + 975, 170, 32, 64)
-    text("£xx", ((1200 - 975) / 4) + 975, 210)
+    text("£50", ((1200 - 975) / 4) + 975, 210)
   }
 }
 

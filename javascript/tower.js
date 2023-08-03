@@ -1,6 +1,6 @@
 class tower {
     
-    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown) {
+    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown, cost) {
         this.x = x;
         this.y = y;
         this.placed = placed;
@@ -11,11 +11,12 @@ class tower {
         this.selected = selected;
         this.damage = damage;
         this.cooldown = cooldown;
+        this.cost = cost;
     }
 
     show() {
         imageMode(CENTER)
-        if (this.placable) {
+        if (this.placable && this.cost <= currency) {
             fill(128, 128, 128, 100)
         } else {
             fill(170, 74, 68, 128)
