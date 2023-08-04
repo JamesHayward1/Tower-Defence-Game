@@ -98,6 +98,9 @@ function draw() {
           let towerID = towerArray[i]
           towerID.active = true
           towerID.counter = 0
+          towerID.enemyX = null
+          towerID.enemyY = null
+          towerID.assignedEnemy = null
         }
       } else {
         end = true
@@ -187,7 +190,7 @@ function mouseClicked() {
       }
       // archer tower
       if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0))
+        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null))
       }
     }
    
@@ -455,19 +458,29 @@ function processes() {
     for (let j = 0; j < enemyArray.length; j++) {
       let enemyID = enemyArray[j]
       let distance = dist(towerID.x, towerID.y, enemyID.x, enemyID.y)
-      if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
-        towerID.enemyX = enemyID.x
-        towerID.enemyY = enemyID.y
-        // calculations for different tower types
-        if (towerID.type == "Archer") {
-          let xChange = towerID.enemyX - towerID.x
-          let yChange = towerID.enemyY - towerID.y
-          let bulletSpeed = 20
-          let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
-          xChange = xChange * scaleFactor
-          yChange = yChange * scaleFactor
-          bulletArray.push(new bullet(towerID.x, towerID.y, xChange, yChange, towerID))
-          towerID.active = false
+      if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
+        let towerCounter = 0;
+        for (let k = 0; k < towerArray.length; k++) {
+          let identifier = towerArray[k]
+          if (identifier.assignedEnemy == enemyID) {
+            towerCounter++
+          }
+        }
+        if (towerCounter < enemyID.health) {
+          towerID.enemyX = enemyID.x
+          towerID.enemyY = enemyID.y
+          towerID.assignedEnemy = enemyID
+          // calculations for different tower types
+          if (towerID.type == "Archer") {
+            let xChange = towerID.enemyX - towerID.x
+            let yChange = towerID.enemyY - towerID.y
+            let bulletSpeed = 20
+            let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
+            xChange = xChange * scaleFactor
+            yChange = yChange * scaleFactor
+            bulletArray.push(new bullet(towerID.x, towerID.y, xChange, yChange, towerID))
+            towerID.active = false
+          }
         }
       }
     }
@@ -481,37 +494,49 @@ function processes() {
       if (towerID.type == "Archer") {
         for (let j = 0; j < bulletArray.length; j++) {
           let bulletID = bulletArray[j]
+          bulletID.show()
           bulletID.x += bulletID.xChange
           bulletID.y += bulletID.yChange
-          bulletID.show()
         }
       }
     }
   }
 
   // bullet and enemy collision
-  for (let i = 0; i < enemyArray.length; i++) {
-    let enemyID = enemyArray[i]
-    for (let j = 0; j < bulletArray.length; j++) {
-      let bulletID = bulletArray[j] 
-      let distance = dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y)
-      if (distance <= 15) {
-        let towerID = bulletID.assignedTower
-        bulletArray.splice(j, 1)
-        enemyID.health -= towerID.damage
-        if (enemyID.health <= 0) {
-          enemyArray.splice(i, 1)
+  let bulletDeleted = 0;
+  let bulletLength = bulletArray.length;
+  for (let i = 0; i < bulletLength; i++) {
+    let bulletID = bulletArray[i - bulletDeleted]
+    let towerID = bulletID.assignedTower
+    let enemyID = towerID.assignedEnemy
+    if (dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y) < 21) {
+      enemyID.health -= towerID.damage
+      if (enemyID.health <= 0) {
+        let num = 0
+        for (let j = 0; j < enemyArray.length; j++) {
+          let identifier = enemyArray[j]
+          if (identifier == enemyID) {
+            num = j
+          }
         }
-        towerID.enemyX = null
-        towerID.enemyY = null
+        enemyArray.splice(num, 1)
       }
+      bulletArray.splice(i - bulletDeleted, 1)
+      bulletDeleted++
+      towerID.enemyX = null
+      towerID.enemyY = null
+      towerID.assignedEnemy = null
     }
   }
 
   // delete bullets that go off screen
   for (let i = 0; i < bulletArray.length; i++) {
     let bulletID = bulletArray[i]
-    if (bulletID.x < 0 || bulletID.x > 1200 || bulletID.y < 0 || bulletID.y > 600) {
+    if (bulletID.x < 225 || bulletID.x > 975 || bulletID.y < 0 || bulletID.y > 600) {
+      let towerID = bulletID.assignedTower
+      towerID.enemyX = null
+      towerID.enemyY = null
+      towerID.assignedEnemy = null
       bulletArray.splice(i, 1)
     }
   }
