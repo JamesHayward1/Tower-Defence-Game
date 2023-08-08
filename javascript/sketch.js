@@ -38,6 +38,7 @@ let spawning = false;
 let spawnCountdown = 0;
 let levelChange = true;
 let end = false;
+let levelComplete = false;
 
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
@@ -87,13 +88,14 @@ function draw() {
     spawnEnemies()
   }
   // checks whether a level is underway
-  if (enemyArray.length == 0) {
+  if (enemyArray.length == 0 && !spawning) {
     levelUnderway = false
     if (!levelChange) {
       if (level != 50) {
         level++
         levelChange = true
         currency += 50
+        levelComplete = true
         for (let i = 0; i < towerArray.length; i++) {
           let towerID = towerArray[i]
           towerID.active = true
@@ -117,136 +119,168 @@ function draw() {
   }
   imageMode(CENTER);
 
-  if (toggles.inputs) {
-    inputs()
-  }
   if (toggles.outputs) {
     outputs()
   }
   if (toggles.processes) {
     processes()
   }
+
+  if (levelComplete) {
+    levelCompleteMessage()
+  }
 }
 
 function mouseClicked() {
-  // mouse input to start game
-  if (start == false) {
-    if (mouseX > 25 && mouseX < 25 + 50 && mouseY > 525 && mouseY < 525 + 50) {
-      infoScreen = true
-    }
-  } else if (mapSelection) {
-    // input to select map
-    if (mouseX > 200 && mouseX < 200 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
-      mapSelection = false
-      map = 1
-    } else if (mouseX > 500 && mouseX < 500 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
-      mapSelection = false
-      console.log("Map 2")
-    } else if (mouseX > 800 && mouseX < 800 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
-      mapSelection = false
-      console.log("Map 3")
-    }
-  } else if (mapSelection == false) {
-    // level start
-    if (mouseX > 1012.5 && mouseX < 1012.5 + 140 && mouseY > 545 && mouseY < 545 + 40) {
-      if (levelUnderway == false) {
-        let notPlayable = false
-        for (let i = 0; i < towerArray.length; i++) {
-          let identifier = towerArray[i]
-          if (!identifier.placed) {
-            notPlayable = true
-            break;
+  if (toggles.inputs) {
+    // mouse input to start game
+    if (start == false) {
+      if (mouseX > 25 && mouseX < 25 + 50 && mouseY > 525 && mouseY < 525 + 50) {
+        infoScreen = true
+      }
+    } else if (mapSelection) {
+      // input to select map
+      if (mouseX > 200 && mouseX < 200 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
+        mapSelection = false
+        map = 1
+      } else if (mouseX > 500 && mouseX < 500 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
+        mapSelection = false
+        console.log("Map 2")
+      } else if (mouseX > 800 && mouseX < 800 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
+        mapSelection = false
+        console.log("Map 3")
+      }
+    } else if (mapSelection == false) {
+      // level start
+      if (mouseX > 1012.5 && mouseX < 1012.5 + 140 && mouseY > 545 && mouseY < 545 + 40) {
+        if (levelUnderway == false) {
+          let notPlayable = false
+          for (let i = 0; i < towerArray.length; i++) {
+            let identifier = towerArray[i]
+            if (!identifier.placed) {
+              notPlayable = true
+              break;
+            }
+          }
+          if (!notPlayable) {
+            spawning = true
+            levelChange = false
           }
         }
-        if (!notPlayable) {
-          spawning = true
-          levelChange = false
-        }
       }
-    }
 
-    // placing towers
-    for (let i = 0; i < towerArray.length; i++) {
-      let identifier = towerArray[i]
-      if (identifier.placable) {
-        if (identifier.placed == false) {
-          if (identifier.cost <= currency) {
-            identifier.placed = true
-            currency = currency - identifier.cost
-          }
-        }
-      }
-    }
-    // purchasing towers
-    if (levelUnderway == false) {
-      // checks whether you currently are placing a tower
-      let unplaced = false;
+      // placing towers
       for (let i = 0; i < towerArray.length; i++) {
         let identifier = towerArray[i]
-        if (identifier.placed == false) {
-          unplaced = true
-          break
-        }
-      }
-      // archer tower
-      if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-        towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null))
-      }
-    }
-   
-    for (let i = 0; i < towerArray.length; i++) {
-      let identifier = towerArray[i]
-      // deselecting towers
-      if (identifier.selected) {
-        if (!(mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32)) {
-          if (mouseX > 0 && mouseX < 1200 && mouseY > 0 && mouseY < 600 && mouseX > 225 && mouseX < 975) {
-            identifier.selected = false
+        if (identifier.placable) {
+          if (identifier.placed == false) {
+            if (identifier.cost <= currency) {
+              identifier.placed = true
+              currency = currency - identifier.cost
+            }
           }
         }
       }
-      // reselecting towers 
-      if (mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32) {
-        for (let j = 0; j < towerArray.length; j++) {
-          let identifier2 = towerArray[j]
-          identifier2.selected = false
+      // purchasing towers
+      if (levelUnderway == false) {
+        // checks whether you currently are placing a tower
+        let unplaced = false;
+        for (let i = 0; i < towerArray.length; i++) {
+          let identifier = towerArray[i]
+          if (identifier.placed == false) {
+            unplaced = true
+            break
+          }
         }
-        identifier.selected = true
+        // archer tower
+        if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null))
+        }
+      }
+    
+      for (let i = 0; i < towerArray.length; i++) {
+        let identifier = towerArray[i]
+        // deselecting towers
+        if (identifier.selected) {
+          if (!(mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32)) {
+            if (mouseX > 0 && mouseX < 1200 && mouseY > 0 && mouseY < 600 && mouseX > 225 && mouseX < 975) {
+              identifier.selected = false
+            }
+          }
+        }
+        // reselecting towers 
+        if (mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32) {
+          for (let j = 0; j < towerArray.length; j++) {
+            let identifier2 = towerArray[j]
+            identifier2.selected = false
+          }
+          identifier.selected = true
+        }
+      }
+    }
+  }
+  else {
+    // closing level complete menu
+    if (levelComplete) {
+      if (mouseX > 525 && mouseX < 525 + 150 && mouseY > 310 && mouseY < 310 + 40) {
+        levelComplete = false
+        toggles = {
+          inputs: true,
+          processes: true,
+          outputs: true,
+        }
       }
     }
   }
 }
 
 function keyPressed() {
-  // spacebar input to start game
-  if (start == false && infoScreen == false) {
-    if (keyCode == 32) {
-      start = true
-    }
-  } else if (infoScreen) {
-    if (keyCode == 27) {
-      infoScreen = false
-    }
-  }
-
-  // back to main menu from end screen
-  if (end) {
-    if (keyCode == 32) {
-      restart()
-    }
-  }
-  
-  for (let i = 0; i < towerArray.length; i++) {
-    let identifier = towerArray[i]
-    // press escape to cancel placing towers
-    if (identifier.placed == false) {
+  if (toggles.inputs) {
+    // spacebar input to start game
+    if (start == false && infoScreen == false) {
+      if (keyCode == 32) {
+        start = true
+      } else if (keyCode == 73) {
+        infoScreen = true
+      }
+    } else if (infoScreen) {
       if (keyCode == 27) {
-        towerArray.splice(i, 1)
+        infoScreen = false
       }
     }
-    // pressing escape to close tower menu
-    if (identifier.placed && identifier.selected) {
+
+    // back to main menu from end screen
+    if (end) {
+      if (keyCode == 32) {
+        restart()
+      }
+    }
+    
+    for (let i = 0; i < towerArray.length; i++) {
+      let identifier = towerArray[i]
+      // press escape to cancel placing towers
+      if (identifier.placed == false) {
+        if (keyCode == 27) {
+          towerArray.splice(i, 1)
+        }
+      }
+      // pressing escape to close tower menu
+      if (identifier.placed && identifier.selected) {
+        if (keyCode == 27) {
+          identifier.selected = false
+        }
+      }
+    }
+  } else {
+    // closing level complete menu
+    if (levelComplete) {
       if (keyCode == 27) {
-        identifier.selected = false
+        levelComplete = false
+        toggles = {
+          inputs: true,
+          processes: true,
+          outputs: true,
+        }
       }
     }
   }
@@ -459,14 +493,14 @@ function processes() {
       let enemyID = enemyArray[j]
       let distance = dist(towerID.x, towerID.y, enemyID.x, enemyID.y)
       if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
-        let towerCounter = 0;
+        let towerDamage = 0;
         for (let k = 0; k < towerArray.length; k++) {
           let identifier = towerArray[k]
           if (identifier.assignedEnemy == enemyID) {
-            towerCounter++
+            towerDamage += identifier.damage
           }
         }
-        if (towerCounter < enemyID.health) {
+        if (towerDamage < enemyID.health) {
           towerID.enemyX = enemyID.x
           towerID.enemyY = enemyID.y
           towerID.assignedEnemy = enemyID
@@ -554,44 +588,9 @@ function processes() {
   }
 }
 
-function inputs() {
-
-}
-
 function outputs() {
   if (start == true && mapSelection == false) {
-    // towers display
-    textSize(25)
-    rectMode(CORNER)
-    fill(180, 129, 74)
-    rect(975, 0, 500, 600, 20)
-
-    // health bar
-    fill(255, 255, 255)
-    if (health <= 0) {
-      text("Health: 0/100", 1087.5, 30)
-    } else {
-      text("Health: " + health + "/100", 1087.5, 30)
-    }
-    // level
-    text("Level: " + level, 1087.5, 110)
-    // currency 
-    text("Currency: £" + currency, 1087.5, 70)
-
-    // start level button
-    fill(228, 194, 144)
-    textSize(20)
-    rectMode(CENTER)
-    rect(1087.5, 565, 150, 40, 10)
-    fill(256, 256, 256)
-    text("Start level", 1087.5, 562.5)
-    rectMode(CORNER)
-
-    // towers 
-    textSize(15)
-    // archer tower
-    image(archer1, ((1200 - 975) / 4) + 975, 170, 32, 64)
-    text("£50", ((1200 - 975) / 4) + 975, 210)
+    towerDisplay()
   }
 }
 
@@ -630,7 +629,7 @@ function towerMenu() {
   fill(256, 256, 256)
   textAlign(LEFT, CENTER);
   text("Damage: " + selectedTower.damage, 20, 210)
-  text("Cooldown: " + selectedTower.cooldown, 20, 240)
+  text("Cooldown: " + (selectedTower.cooldown / 60), 20, 240)
   text("Range: " + selectedTower.radius, 20, 270)
   text("Level: " + selectedTower.level, 20,300)
   if (selectedTower.level != 3 && selectedTower.placed) {
@@ -731,4 +730,84 @@ function endMenu() {
 function restart() {
   // reset all variables to go back to main menu
   console.log("Main menu")
+}
+
+function levelCompleteMessage() {
+  toggles = {
+    inputs: false,
+    processes: false,
+    outputs: false,
+  } 
+
+  let selected = false
+  let selectedTower;
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (towerID.selected) {
+      selected = true
+      selectedTower = towerID
+    } else {
+      towerID.show()
+    }
+  }
+  if (selected) {
+    towerMenu()
+    fill(128, 128, 128, 100)
+    ellipse(selectedTower.x, selectedTower.y, selectedTower.radius)
+    selectedTower.show()
+  }
+  towerDisplay()
+
+  fill(128, 128, 128, 150)
+  rect(-50, -50, 1300, 700)
+  
+  rectMode(CENTER)
+  textSize(25)
+  fill(85, 142, 153)
+  rect(width/2, height/2, 400, 200, 20)
+  fill(256, 256, 256)
+  text("You completed level " + (level - 1) + "!", width/2, 250)
+
+  fill(228, 194, 144)
+  textSize(25)
+  rectMode(CENTER)
+  rect(width/2, 330, 150, 40, 10)
+  fill(256, 256, 256)
+  text("Continue", width/2, 327)
+
+  rectMode(CORNER)
+}
+
+function towerDisplay() {
+  textSize(25)
+  rectMode(CORNER)
+  fill(180, 129, 74)
+  rect(975, 0, 500, 600, 20)
+
+  // health bar
+  fill(255, 255, 255)
+  if (health <= 0) {
+    text("Health: 0/100", 1087.5, 30)
+  } else {
+    text("Health: " + health + "/100", 1087.5, 30)
+  }
+  // level
+  text("Level: " + level, 1087.5, 110)
+  // currency 
+  text("Currency: £" + currency, 1087.5, 70)
+
+  // start level button
+  fill(228, 194, 144)
+  textSize(20)
+  rectMode(CENTER)
+  rect(1087.5, 565, 150, 40, 10)
+  fill(256, 256, 256)
+  text("Start level", 1087.5, 562.5)
+  rectMode(CORNER)
+
+  // towers 
+  textSize(15)
+  // archer tower
+  image(archer1, ((1200 - 975) / 4) + 975, 170, 32, 64)
+  text("£50", ((1200 - 975) / 4) + 975, 210)
 }
