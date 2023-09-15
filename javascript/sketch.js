@@ -39,6 +39,7 @@ let spawnCountdown = 0;
 let levelChange = true;
 let end = false;
 let levelComplete = false;
+let pause = false
 
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
@@ -128,6 +129,8 @@ function draw() {
 
   if (levelComplete) {
     levelCompleteMessage()
+  } else if (pause) {
+    pauseGame()
   }
 }
 
@@ -231,6 +234,17 @@ function mouseClicked() {
         }
       }
     }
+    // closing pause menu
+    if (pause) {
+      if (mouseX > 525 && mouseX < 525 + 150 && mouseY > 380 && mouseY < 380 + 40) {
+        pause = false
+        toggles = {
+          inputs: true,
+          processes: true,
+          outputs: true,
+        }
+      }
+    }
   }
 }
 
@@ -256,26 +270,47 @@ function keyPressed() {
       }
     }
     
+    let pausable = true
     for (let i = 0; i < towerArray.length; i++) {
       let identifier = towerArray[i]
       // press escape to cancel placing towers
       if (identifier.placed == false) {
         if (keyCode == 27) {
           towerArray.splice(i, 1)
+          pausable = false
         }
-      }
-      // pressing escape to close tower menu
-      if (identifier.placed && identifier.selected) {
+      } else if (identifier.placed && identifier.selected) {
+        // pressing escape to close tower menu
         if (keyCode == 27) {
           identifier.selected = false
+          pausable = false
         }
       }
     }
+
+    if (keyCode == 27) {
+      if (pausable) {
+        // open pause menu
+        pause = true
+      }
+    }
+
   } else {
     // closing level complete menu
     if (levelComplete) {
       if (keyCode == 27) {
         levelComplete = false
+        toggles = {
+          inputs: true,
+          processes: true,
+          outputs: true,
+        }
+      }
+    }
+    // closing pause menu
+    if (pause) {
+      if (keyCode == 27) {
+        pause = false
         toggles = {
           inputs: true,
           processes: true,
@@ -810,4 +845,67 @@ function towerDisplay() {
   // archer tower
   image(archer1, ((1200 - 975) / 4) + 975, 170, 32, 64)
   text("£50", ((1200 - 975) / 4) + 975, 210)
+}
+
+function pauseGame() {
+  toggles = {
+    inputs: false,
+    processes: false,
+    outputs: false,
+  } 
+
+  // shows towers
+  let selected = false
+  let selectedTower;
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (towerID.selected) {
+      selected = true
+      selectedTower = towerID
+    } else {
+      towerID.show()
+    }
+  }
+  // shows any selected towers
+  if (selected) {
+    towerMenu()
+    fill(128, 128, 128, 100)
+    ellipse(selectedTower.x, selectedTower.y, selectedTower.radius)
+    selectedTower.show()
+  }
+  towerDisplay()
+  // shows enemies and bullets
+  for (let i = 0; i < enemyArray.length; i++) {
+    let enemyID = enemyArray[i]
+    enemyID.show()
+  }
+  for (let i = 0; i < bulletArray.length; i++) {
+    let bulletID = bulletArray[i]
+    bulletID.show()
+  }
+
+  fill(128, 128, 128, 150)
+  rect(-50, -50, 1300, 700)
+  
+  rectMode(CENTER)
+  textSize(40)
+  fill(85, 142, 153)
+  rect(width/2, height/2, 400, 350, 20)
+  fill(256, 256, 256)
+  text("Game paused", width/2, 175)
+
+  // stats
+  textSize(25)
+  text("Level: " + level, width/2, 250)
+  text("Health: " + health + "/100", width/2, 285)
+  text("Currency: £" + currency, width/2, 320)
+
+  fill(228, 194, 144)
+  textSize(25)
+  rectMode(CENTER)
+  rect(width/2, 400, 150, 40, 10)
+  fill(256, 256, 256)
+  text("Continue", width/2, 397)
+
+  rectMode(CORNER)
 }
