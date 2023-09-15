@@ -721,7 +721,9 @@ function spawnEnemies() {
       enemyArray.push(new enemy(465, -50, health, 1, 3))
     }
   }
-  spawnCountdown++
+  if (!pause) {
+    spawnCountdown++
+  }
   // stops spawning enemies once all spawned
   if (spawnCountdown / 30 == data.length) {
     spawning = false
