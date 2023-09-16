@@ -13,9 +13,16 @@ let mapOne;
 let mainMenuBG;
 let mapSelectionBG;
 let mapOnePreview;
+// tower images
 let archer1;
 let archer2;
 let archer3;
+let frost1;
+let frost2;
+let frost3;
+let missile1;
+let missile2;
+let missile3;
 
 // font
 let gameFont;
@@ -53,6 +60,14 @@ function preload() {
   archer1 = loadImage("Images/Archer/archer1.png")
   archer2 = loadImage("Images/Archer/archer2.png")
   archer3 = loadImage("Images/Archer/archer3.png")
+  // frost tower
+  frost1 = loadImage("Images/Frost/frost1.png")
+  frost2 = loadImage("Images/Frost/frost2.png")
+  frost3 = loadImage("Images/Frost/frost3.png")
+  // missile tower
+  missile1 = loadImage("Images/Missile/missile1.png")
+  missile2 = loadImage("Images/Missile/missile2.png")
+  missile3 = loadImage("Images/Missile/missile3.png")
 }
 
 function setup() {
@@ -195,9 +210,12 @@ function mouseClicked() {
             break
           }
         }
-        // archer tower
         if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-          towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null, 50))
+          towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null, 50)) // archer tower
+        } else if (mouseX > 1071.5 && mouseX < 1071.5 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          towerArray.push(new tower(mouseX, mouseY, false, "Frost", 220, 1, false, true, null, null, 75, null, null, true, 0, null, 75)) // Frost tower
+        } else if (mouseX > 1127.75 && mouseX < 1127.75 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          towerArray.push(new tower(mouseX, mouseY, false, "Missile", 500, 1, false, true, 2, 150, 75, null, null, true, 0, null, 75)) // missile tower
         }
       }
     
@@ -228,7 +246,7 @@ function mouseClicked() {
       // checks whether sell button is currently on screen
       for (let i = 0; i < towerArray.length; i++) {
         let towerID = towerArray[i]
-        if (towerID.selected &&  towerID.placed) {
+        if (towerID.selected &&  towerID.placed && !levelUnderway) {
           sellable = true
           sellableTower = towerID
           towerArrayPosition = i
@@ -470,75 +488,97 @@ function processes() {
       identifier.show()
     }
   }
-  for (let i = 0; i < towerArray.length; i++) {
-    let identifier = towerArray[i]
-    // showing tower menu if tower is selected
-    if (identifier.selected) {
-      towerMenu()
-      if (identifier.placed) {
-        fill(128, 128, 128, 100)
-        ellipse(identifier.x, identifier.y, identifier.radius)
-      }
-    }
-    if (identifier.selected) {
-      identifier.show()
-    }
-  }
 
   // moving enemies
   if (map == 1) {
     for (let i = 0; i < enemyArray.length; i++) {
       let identifier = enemyArray[i]
       if (identifier.stage == 1) {
-        identifier.y += identifier.speed
+        if (identifier.frost) {
+          identifier.y += (identifier.speed / 2)
+        } else {
+          identifier.y += identifier.speed
+        }
         identifier.show()
         if (identifier.y >= 103) {
           identifier.stage = 2
         }
       } else if (identifier.stage == 2) {
-        identifier.x += identifier.speed
+        if (identifier.frost) {
+          identifier.x += (identifier.speed / 2)
+        } else {
+          identifier.x += identifier.speed
+        }
         identifier.show()
         if (identifier.x >= 705) {
           identifier.stage = 3
         }
       } else if (identifier.stage == 3) {
-        identifier.y += identifier.speed
+        if (identifier.frost) {
+          identifier.y += (identifier.speed / 2)
+        } else {
+          identifier.y += identifier.speed
+        }
         identifier.show()
         if (identifier.y >= 223) {
           identifier.stage = 4
         }
       } else if (identifier.stage == 4) {
-        identifier.x -= identifier.speed
+        if (identifier.frost) {
+          identifier.x -= (identifier.speed / 2)
+        } else {
+          identifier.x -= identifier.speed
+        }
         identifier.show()
         if (identifier.x <= 555) {
           identifier.stage = 5
         }
       } else if (identifier.stage == 5) {
-        identifier.y += identifier.speed
+        if (identifier.frost) {
+          identifier.y += (identifier.speed / 2)
+        } else {
+          identifier.y += identifier.speed
+        }
         identifier.show()
         if (identifier.y >= 343) {
           identifier.stage = 6
         }
       } else if (identifier.stage == 6) {
-        identifier.x -= identifier.speed
+        if (identifier.frost) {
+          identifier.x -= (identifier.speed / 2)
+        } else {
+          identifier.x -= identifier.speed
+        }
         identifier.show()
         if (identifier.x <= 435) {
           identifier.stage = 7
         }
       } else if (identifier.stage == 7) {
-        identifier.y += identifier.speed
+        if (identifier.frost) {
+          identifier.y += (identifier.speed / 2)
+        } else {
+          identifier.y += identifier.speed
+        }
         identifier.show()
         if (identifier.y >= 493) {
           identifier.stage = 8
         }
       } else if (identifier.stage == 8) {
-        identifier.x += identifier.speed
+        if (identifier.frost) {
+          identifier.x += (identifier.speed / 2)
+        } else {
+          identifier.x += identifier.speed
+        }
         identifier.show()
         if (identifier.x >= 735) {
           identifier.stage = 9
         }
       } else if (identifier.stage == 9) {
-        identifier.y += identifier.speed
+        if (identifier.frost) {
+          identifier.y += (identifier.speed / 2)
+        } else {
+          identifier.y += identifier.speed
+        }
         identifier.show()
         if (identifier.y >= 650) {
           enemyArray.splice(i, 1)
@@ -555,30 +595,65 @@ function processes() {
       let enemyID = enemyArray[j]
       let distance = dist(towerID.x, towerID.y, enemyID.x, enemyID.y)
       if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
-        let towerDamage = 0;
-        for (let k = 0; k < towerArray.length; k++) {
-          let identifier = towerArray[k]
-          if (identifier.assignedEnemy == enemyID) {
-            towerDamage += identifier.damage
+        if (towerID.type == "Frost") {
+          enemyID.frost = true
+        } else {
+          let towerDamage = 0;
+          for (let k = 0; k < towerArray.length; k++) {
+            let identifier = towerArray[k]
+            if (identifier.assignedEnemy == enemyID) {
+              towerDamage += identifier.damage
+            }
+          }
+          if (towerDamage < enemyID.health) {
+            towerID.enemyX = enemyID.x
+            towerID.enemyY = enemyID.y
+            towerID.assignedEnemy = enemyID
+            // calculations for different tower types
+            if (towerID.type == "Archer" || towerID.type == "Missile") {
+              let xChange = towerID.enemyX - towerID.x
+              let yChange = towerID.enemyY - towerID.y
+              let bulletSpeed = 20
+              let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
+              xChange = xChange * scaleFactor
+              yChange = yChange * scaleFactor
+              bulletArray.push(new bullet(towerID.x, towerID.y, xChange, yChange, towerID))
+              towerID.active = false
+            }
           }
         }
-        if (towerDamage < enemyID.health) {
-          towerID.enemyX = enemyID.x
-          towerID.enemyY = enemyID.y
-          towerID.assignedEnemy = enemyID
-          // calculations for different tower types
-          if (towerID.type == "Archer") {
-            let xChange = towerID.enemyX - towerID.x
-            let yChange = towerID.enemyY - towerID.y
-            let bulletSpeed = 20
-            let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
-            xChange = xChange * scaleFactor
-            yChange = yChange * scaleFactor
-            bulletArray.push(new bullet(towerID.x, towerID.y, xChange, yChange, towerID))
-            towerID.active = false
-          }
+      } else {
+        if (towerID.type == "Frost") {
+          enemyID.frost = false
         }
       }
+    }
+  }
+
+  // calculations for heat seaking missile
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (towerID.type == "Missile" && towerID.assignedEnemy != null) {
+      let enemyID = towerID.assignedEnemy
+      towerID.enemyX = enemyID.x
+      towerID.enemyY = enemyID.y
+
+      let xChange = towerID.enemyX - towerID.x
+      let yChange = towerID.enemyY - towerID.y
+      let bulletSpeed = 15
+      let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
+      xChange = xChange * scaleFactor
+      yChange = yChange * scaleFactor
+      let bulletID
+      for (let j = 0; j < bulletArray.length; j++) {
+        let identifier = bulletArray[j]
+        if (identifier.assignedTower == towerID) {
+          bulletID = identifier
+          break
+        }
+      }
+      bulletID.xChange = xChange
+      bulletID.yChange = yChange
     }
   }
 
@@ -586,8 +661,8 @@ function processes() {
   for (let i = 0; i < towerArray.length; i++) {
     let towerID = towerArray[i]
     if (towerID.enemyX != null && towerID.enemyY != null) {
-      // archer tower
-      if (towerID.type == "Archer") {
+      // archer tower and missile tower
+      if (towerID.type == "Archer" || towerID.type == "Missile") {
         for (let j = 0; j < bulletArray.length; j++) {
           let bulletID = bulletArray[j]
           bulletID.show()
@@ -651,8 +726,29 @@ function processes() {
 }
 
 function outputs() {
+  for (let i = 0; i < towerArray.length; i++) {
+    let identifier = towerArray[i]
+    // showing tower menu if tower is selected
+    if (identifier.selected) {
+      if (identifier.placed) {
+        fill(128, 128, 128, 100)
+        ellipse(identifier.x, identifier.y, identifier.radius)
+      }
+      towerMenu()
+    }
+  }
+
+  // showing tower display
   if (start == true && mapSelection == false) {
+    textAlign(CENTER, CENTER);
     towerDisplay()
+  }
+
+  for (let i = 0; i < towerArray.length; i++) {
+    let identifier = towerArray[i]
+    if (identifier.selected) {
+      identifier.show()
+    }
   }
 }
 
@@ -684,21 +780,60 @@ function towerMenu() {
     } else if (selectedTower.level == 3) {
       image(archer3, 112.5, 120, 64, 128)
     }
+  } else if (selectedTower.type == "Missile") {
+    if (selectedTower.level == 1) {
+      image(missile1, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 2) {
+      image(missile2, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 3) {
+      image(missile3, 112.5, 120, 64, 128)
+    }
+  } else if (selectedTower.type == "Frost") {
+    if (selectedTower.level == 1) {
+      image(frost1, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 2) {
+      image(frost2, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 3) {
+      image(frost3, 112.5, 120, 64, 128)
+    }
   }
   rectMode(CENTER)
   fill(228, 194, 144)
-  rect(112.5, 257.5, 205, 125, 10)
-  fill(256, 256, 256)
-  textAlign(LEFT, CENTER);
-  text("Damage: " + selectedTower.damage, 20, 210)
-  text("Cooldown: " + (selectedTower.cooldown / 60), 20, 240)
-  text("Range: " + selectedTower.radius, 20, 270)
-  text("Level: " + selectedTower.level, 20,300)
+  if (selectedTower.type == "Frost") { //special case where frost tower doesnt have cooldown/damage
+    rect(112.5, 228.75, 205, 67.5, 10)
+    fill(256, 256, 256)
+    textAlign(LEFT, CENTER);
+    text("Range: " + selectedTower.radius, 20, 210)
+    text("Level: " + selectedTower.level, 20, 240)
+    // tower explaination
+    fill(228, 194, 144)
+    rect(112.5, 315, 205, 87.5, 10)
+    fill(256, 256, 256)
+    textAlign(CENTER, CENTER);
+    text("The frost tower", 112.5, 287.5)
+    text("slows enemies in", 112.5, 312.5)
+    text("its radius", 112.5, 337.5)
+    textAlign(LEFT, CENTER);
+  } else {
+    rect(112.5, 257.5, 205, 125, 10)
+    fill(256, 256, 256)
+    textAlign(LEFT, CENTER);
+    text("Damage: " + selectedTower.damage, 20, 210)
+    text("Cooldown: " + (selectedTower.cooldown / 60), 20, 240)
+    text("Range: " + selectedTower.radius, 20, 270)
+    text("Level: " + selectedTower.level, 20,300)
+  }
   if (selectedTower.level != 3 && selectedTower.placed) {
-    text("Upgrade to level: " + (selectedTower.level + 1), 20, 350)
-    text("Range: ", 20, 380)
-    text("Damage: ", 20, 410)
-    text("Cooldown: ", 20, 440)
+    if (selectedTower.type == "Frost") {
+      text("Upgrade to level: " + (selectedTower.level + 1), 20, 380)
+      text("Range: ", 20, 410)
+      text("Cooldown: ", 20, 440)
+    } else {
+      text("Upgrade to level: " + (selectedTower.level + 1), 20, 350)
+      text("Range: ", 20, 380)
+      text("Damage: ", 20, 410)
+      text("Cooldown: ", 20, 440)
+    }
     textAlign(CENTER, CENTER);
     fill(228, 194, 144)
     rect(112.5, 492.5, 150, 45, 10)
@@ -746,7 +881,7 @@ function spawnEnemies() {
     let health = data.substring(spawnCountdown / 30, (spawnCountdown / 30) + 1)
     // spawn ememy
     if (map == 1) {
-      enemyArray.push(new enemy(465, -50, health, 1, 3))
+      enemyArray.push(new enemy(465, -50, health, 1, 3, false))
     }
   }
   if (!pause) {
@@ -875,6 +1010,12 @@ function towerDisplay() {
   // archer tower
   image(archer1, ((1200 - 975) / 4) + 975, 170, 32, 64)
   text("£50", ((1200 - 975) / 4) + 975, 210)
+  // frost tower
+  image(frost1, ((1200 - 975) / 2) + 975, 170, 32, 64)
+  text("£75", ((1200 - 975) / 2) + 975, 210)
+  // missile tower
+  image(missile1, (((1200 - 975) / 4) * 3) + 975, 170, 32, 64)
+  text("£75", (((1200 - 975) / 4) * 3) + 975, 210)
 }
 
 function pauseGame() {

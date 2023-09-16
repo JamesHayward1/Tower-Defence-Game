@@ -44,6 +44,40 @@ class tower {
                     image(archer3, this.x, this.y, 32, 64)
                 }
             }
+        } else if (this.type == "Frost") {
+            if (this.placed == false) {
+                ellipse(this.x, this.y, this.radius)
+                image(frost1, this.x, this.y, 32, 64)
+                fill(255, 255, 255)
+                textAlign(CENTER, CENTER); 
+                textSize(25)
+                text("Press escape to cancel", width/2, 570)
+            } else if (this.placed) {
+                if (this.level == 1) {
+                    image(frost1, this.x, this.y, 32, 64)
+                } else if (this.level == 2) {
+                    image(frost2, this.x, this.y, 32, 64)
+                } else if (this.level == 3) {
+                    image(frost3, this.x, this.y, 32, 64)
+                }
+            }
+        } else if (this.type == "Missile") {
+            if (this.placed == false) {
+                ellipse(this.x, this.y, this.radius)
+                image(missile1, this.x, this.y, 32, 64)
+                fill(255, 255, 255)
+                textAlign(CENTER, CENTER); 
+                textSize(25)
+                text("Press escape to cancel", width/2, 570)
+            } else if (this.placed) {
+                if (this.level == 1) {
+                    image(missile1, this.x, this.y, 32, 64)
+                } else if (this.level == 2) {
+                    image(missile2, this.x, this.y, 32, 64)
+                } else if (this.level == 3) {
+                    image(missile3, this.x, this.y, 32, 64)
+                }
+            }
         }
     }
 }

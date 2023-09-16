@@ -1,11 +1,12 @@
 class enemy {
     
-    constructor(x, y, health, stage, speed) {
+    constructor(x, y, health, stage, speed, frost) {
         this.x = x;
         this.y = y;
         this.health = health;
         this.stage = stage;
         this.speed = speed;
+        this.frost = frost;
     }
 
     show() {
