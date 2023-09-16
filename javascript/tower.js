@@ -1,6 +1,6 @@
 class tower {
     
-    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown, cost, enemyX, enemyY, active, counter, assignedEnemy) {
+    constructor(x, y, placed, type, radius, level, placable, selected, damage, cooldown, cost, enemyX, enemyY, active, counter, assignedEnemy, totalCost) {
         this.x = x;
         this.y = y;
         this.placed = placed;
@@ -17,6 +17,7 @@ class tower {
         this.active = active; // becomes false when the tower is in its cooldown
         this.counter = counter; // counts up to the cooldownn of the tower
         this.assignedEnemy = assignedEnemy;
+        this.totalCost = totalCost // total amount invested into the tower: cost + upgrades
     }
 
     show() {

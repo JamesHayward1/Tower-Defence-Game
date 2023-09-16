@@ -197,7 +197,7 @@ function mouseClicked() {
         }
         // archer tower
         if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
-          towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null))
+          towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null, 50))
         }
       }
     
@@ -218,6 +218,29 @@ function mouseClicked() {
             identifier2.selected = false
           }
           identifier.selected = true
+        }
+      }
+
+      // selling towers
+      let sellable = false
+      let sellableTower;
+      let towerArrayPosition;
+      // checks whether sell button is currently on screen
+      for (let i = 0; i < towerArray.length; i++) {
+        let towerID = towerArray[i]
+        if (towerID.selected &&  towerID.placed) {
+          sellable = true
+          sellableTower = towerID
+          towerArrayPosition = i
+          break
+        }
+      }
+      // if sell button is on screen, sells tower and returns money
+      if (sellable) {
+        if (mouseX > 37.5 && mouseX < 37.5 + 150 && mouseY > 530 && mouseY < 530 + 45) {
+          let money = Math.floor(sellableTower.totalCost / 2) // makes sure number is an integer
+          currency += money
+          towerArray.splice(towerArrayPosition, 1)
         }
       }
     }
@@ -286,6 +309,10 @@ function keyPressed() {
           pausable = false
         }
       }
+    }
+
+    if (!start || mapSelection) {
+      pausable = false
     }
 
     if (keyCode == 27) {
@@ -683,7 +710,8 @@ function towerMenu() {
     fill(228, 194, 144)
     rect(112.5, 552.5, 150, 45, 10)
     fill(256, 256, 256)
-    text("Sell: £xx", 112.5, 550)
+    let money = Math.floor(selectedTower.totalCost / 2)
+    text("Sell: £" + money, 112.5, 550)
   }
 }
 
