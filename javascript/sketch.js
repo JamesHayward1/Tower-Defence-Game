@@ -23,6 +23,9 @@ let frost3;
 let missile1;
 let missile2;
 let missile3;
+let bomb1;
+let bomb2;
+let bomb3;
 
 // font
 let gameFont;
@@ -39,6 +42,7 @@ let levelUnderway = false;
 let towerArray = [];
 let enemyArray = [];
 let bulletArray = [];
+let bombArray = [];
 let infoScreen = false;
 let levels;
 let spawning = false;
@@ -46,7 +50,7 @@ let spawnCountdown = 0;
 let levelChange = true;
 let end = false;
 let levelComplete = false;
-let pause = false
+let pause = false;
 
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
@@ -68,6 +72,10 @@ function preload() {
   missile1 = loadImage("Images/Missile/missile1.png")
   missile2 = loadImage("Images/Missile/missile2.png")
   missile3 = loadImage("Images/Missile/missile3.png")
+  // bomb tower
+  bomb1 = loadImage("Images/Bomb/bomb1.png")
+  bomb2 = loadImage("Images/Bomb/bomb2.png")
+  bomb3 = loadImage("Images/Bomb/bomb3.png")
 }
 
 function setup() {
@@ -161,13 +169,7 @@ function mouseClicked() {
       if (mouseX > 200 && mouseX < 200 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
         mapSelection = false
         map = 1
-      } else if (mouseX > 500 && mouseX < 500 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
-        mapSelection = false
-        console.log("Map 2")
-      } else if (mouseX > 800 && mouseX < 800 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
-        mapSelection = false
-        console.log("Map 3")
-      }
+      } 
     } else if (mapSelection == false) {
       // level start
       if (mouseX > 1012.5 && mouseX < 1012.5 + 140 && mouseY > 545 && mouseY < 545 + 40) {
@@ -216,6 +218,8 @@ function mouseClicked() {
           towerArray.push(new tower(mouseX, mouseY, false, "Frost", 220, 1, false, true, null, null, 75, null, null, true, 0, null, 75)) // Frost tower
         } else if (mouseX > 1127.75 && mouseX < 1127.75 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
           towerArray.push(new tower(mouseX, mouseY, false, "Missile", 500, 1, false, true, 2, 150, 75, null, null, true, 0, null, 75)) // missile tower
+        } else if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 228 && mouseY < 228 + 64 && unplaced == false) {
+          towerArray.push(new tower(mouseX, mouseY, false, "Bomb", 220, 1, false, true, 1, 120, 100, null, null, true, 0, null, 100)) // bomb tower
         }
       }
     
@@ -594,7 +598,7 @@ function processes() {
     for (let j = 0; j < enemyArray.length; j++) {
       let enemyID = enemyArray[j]
       let distance = dist(towerID.x, towerID.y, enemyID.x, enemyID.y)
-      if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active) {
+      if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active && towerID.type != "Bomb") {
         if (towerID.type == "Frost") {
           enemyID.frost = true
         } else {
@@ -634,16 +638,6 @@ function processes() {
   for (let i = 0; i < towerArray.length; i++) {
     let towerID = towerArray[i]
     if (towerID.type == "Missile" && towerID.assignedEnemy != null) {
-      let enemyID = towerID.assignedEnemy
-      towerID.enemyX = enemyID.x
-      towerID.enemyY = enemyID.y
-
-      let xChange = towerID.enemyX - towerID.x
-      let yChange = towerID.enemyY - towerID.y
-      let bulletSpeed = 15
-      let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
-      xChange = xChange * scaleFactor
-      yChange = yChange * scaleFactor
       let bulletID
       for (let j = 0; j < bulletArray.length; j++) {
         let identifier = bulletArray[j]
@@ -652,6 +646,16 @@ function processes() {
           break
         }
       }
+      let enemyID = towerID.assignedEnemy
+      towerID.enemyX = enemyID.x
+      towerID.enemyY = enemyID.y
+
+      let xChange = towerID.enemyX - bulletID.x
+      let yChange = towerID.enemyY - bulletID.y
+      let bulletSpeed = 10
+      let scaleFactor = sqrt((bulletSpeed ** 2) / ((xChange ** 2) + (yChange ** 2)))
+      xChange = xChange * scaleFactor
+      yChange = yChange * scaleFactor
       bulletID.xChange = xChange
       bulletID.yChange = yChange
     }
@@ -709,6 +713,164 @@ function processes() {
       towerID.enemyY = null
       towerID.assignedEnemy = null
       bulletArray.splice(i, 1)
+    }
+  }
+
+  // bombs
+  if (levelUnderway) {
+    for (let i = 0; i < towerArray.length; i++) {
+      let towerID = towerArray[i]
+      if (towerID.type == "Bomb" && towerID.active) {
+        let coordinateArray = []
+        let point = {
+            x: 465,
+            y: 0,
+            stage: 1
+        }
+        // checking if the point is in the towers radius
+        for (let j = 1; j < 1411; j++) {
+          let distance = dist(towerID.x, towerID.y, point.x, point.y)
+          if (distance <= towerID.radius / 2) {
+              coordinateArray.push(point.x)
+              coordinateArray.push(point.y)
+              coordinateArray.push(point.stage)
+          }
+      
+          if (point.stage == 1) {
+              point.y += 1
+              if (point.y >= 103) {
+                  point.stage = 2
+              }
+          } else if (point.stage == 2) {
+              point.x += 1
+              if (point.x >= 705) {
+                  point.stage = 3
+              }
+          } else if (point.stage == 3) {
+              point.y += 1
+              if (point.y >= 223) {
+                  point.stage = 4
+              }
+          } else if (point.stage == 4) {
+              point.x -= 1
+              if (point.x <= 555) {
+                  point.stage = 5
+              }
+          } else if (point.stage == 5) {
+              point.y += 1
+              if (point.y >= 343) {
+                  point.stage = 6
+              }
+          } else if (point.stage == 6) {
+              point.x -= 1
+              if (point.x <= 435) {
+                  point.stage = 7
+              }
+          } else if (point.stage == 7) {
+              point.y += 1
+              if (point.y >= 493) {
+                  point.stage = 8
+              }
+          } else if (point.stage == 8) {
+              point.x += 1
+              if (point.x >= 735) {
+                  point.stage = 9
+              }
+          } else if (point.stage == 9) {
+              point.y += 1
+          }
+        }
+        // spawning in a bomb in towers range
+        let bombX;
+        let bombY;
+        let bombStage;
+        let upperRange = coordinateArray.length - 1
+        let index = Math.floor((Math.random() * upperRange))
+        if ((index % 3) == 1) {
+          index -= 1
+        } else if ((index % 3) == 2) {
+          index -= 2
+        }
+        bombX = coordinateArray[index]
+        bombY = coordinateArray[index + 1]
+        bombStage = coordinateArray[index + 2]
+        bombArray.push(new bomb(bombX, bombY, towerID, bombStage))
+        towerID.active = false
+      }
+    }
+  }
+  // showing bombs
+  for (let i = 0; i < bombArray.length; i++) {
+    let bombID = bombArray[i]
+    bombID.show()
+  }
+
+  // moving bombs
+  for (let i = 0; i < bombArray.length; i++) {
+    let identifier = bombArray[i]
+    let speed = 3
+    if (identifier.stage == 1) {
+      identifier.y -= speed
+      if (identifier.y <= 0) {
+        bombArray.splice(i, 1)
+      }
+    } else if (identifier.stage == 2) {
+      identifier.x -= speed
+      if (identifier.x <= 465) {
+        identifier.stage = 1
+      }
+    } else if (identifier.stage == 3) {
+      identifier.y -= speed
+      if (identifier.y <= 103) {
+        identifier.stage = 2
+      }
+    } else if (identifier.stage == 4) {
+      identifier.x += speed
+      if (identifier.x >= 705) {
+        identifier.stage = 3
+      }
+    } else if (identifier.stage == 5) {
+      identifier.y -= speed
+      if (identifier.y <= 223) {
+        identifier.stage = 4
+      }
+    } else if (identifier.stage == 6) {
+      identifier.x += speed
+      if (identifier.x >= 555) {
+        identifier.stage = 5
+      }
+    } else if (identifier.stage == 7) {
+      identifier.y -= speed
+      if (identifier.y <= 343) {
+        identifier.stage = 6
+      }
+    } else if (identifier.stage == 8) {
+      identifier.x -= speed
+      if (identifier.x <= 435) {
+        identifier.stage = 7
+      }
+    } else if (identifier.stage == 9) {
+      identifier.y -= speed
+      if (identifier.y <= 493) {
+        identifier.stage = 8
+      }
+    }
+  }
+
+  // bomb and enemy collision
+  for (let i = 0; i < bombArray.length; i++) {
+    let bombID = bombArray[i]
+    for (let j = 0; j < enemyArray.length; j++) {
+      let enemyID = enemyArray[j]
+      let distance = dist(bombID.x, bombID.y, enemyID.x, enemyID.y)
+      if (distance <= 10) {
+        let towerID = bombID.assignedTower
+        enemyID.health -= towerID.damage
+        if (enemyID.health <= 0) {
+          enemyArray.splice(j, 1)
+        }
+        bombArray.splice(i, 1)
+      }
     }
   }
 
@@ -796,6 +958,14 @@ function towerMenu() {
     } else if (selectedTower.level == 3) {
       image(frost3, 112.5, 120, 64, 128)
     }
+  } else if (selectedTower.type == "Bomb") {
+    if (selectedTower.level == 1) {
+      image(bomb1, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 2) {
+      image(bomb2, 112.5, 120, 64, 128)
+    } else if (selectedTower.level == 3) {
+      image(bomb3, 112.5, 120, 64, 128)
+    }
   }
   rectMode(CENTER)
   fill(228, 194, 144)
@@ -814,6 +984,21 @@ function towerMenu() {
     text("slows enemies in", 112.5, 312.5)
     text("its radius", 112.5, 337.5)
     textAlign(LEFT, CENTER);
+  } else if (selectedTower.type == "Bomb") {
+    rect(112.5, 243.75, 205, 97.5, 10)
+    fill(256, 256, 256)
+    textAlign(LEFT, CENTER);
+    text("Damage: " + selectedTower.damage, 20, 210)
+    text("Cooldown: " + (selectedTower.cooldown / 60), 20, 240)
+    text("Level: " + selectedTower.level, 20, 270)
+    // tower explaination
+    fill(228, 194, 144)
+    rect(112.5, 329, 205, 59.5, 10)
+    fill(256, 256, 256)
+    textAlign(CENTER, CENTER);
+    text("Spawns bombs in", 112.5, 312.5)
+    text("its radius", 112.5, 337.5)
+    textAlign(LEFT, CENTER);
   } else {
     rect(112.5, 257.5, 205, 125, 10)
     fill(256, 256, 256)
@@ -828,6 +1013,10 @@ function towerMenu() {
       text("Upgrade to level: " + (selectedTower.level + 1), 20, 380)
       text("Range: ", 20, 410)
       text("Cooldown: ", 20, 440)
+    } else if (selectedTower.type == "Bomb") {
+      text("Upgrade to level: " + (selectedTower.level + 1), 20, 380)
+      text("Damage: ", 20, 410)
+      text("Cooldown: ", 20, 440)
     } else {
       text("Upgrade to level: " + (selectedTower.level + 1), 20, 350)
       text("Range: ", 20, 380)
@@ -838,7 +1027,11 @@ function towerMenu() {
     fill(228, 194, 144)
     rect(112.5, 492.5, 150, 45, 10)
     fill(256, 256, 256)
-    text("Upgrade: £xx", 112.5, 490)
+    if (selectedTower.level == 1) {
+      text("Upgrade: £" + selectedTower.cost, 112.5, 490)
+    } else if (selectedTower.level == 2) {
+      text("Upgrade: £" + (selectedTower.cost * 2), 112.5, 490)
+    }
   } 
   if (selectedTower.placed) {
     textAlign(CENTER, CENTER);
@@ -976,6 +1169,11 @@ function levelCompleteMessage() {
   text("Continue", width/2, 327)
 
   rectMode(CORNER)
+
+  // deleting bombs at the end of the level
+  for (let i = 0; i < bombArray.length; i++) {
+    bombArray.splice(i, 1)
+  }
 }
 
 function towerDisplay() {
@@ -1016,6 +1214,9 @@ function towerDisplay() {
   // missile tower
   image(missile1, (((1200 - 975) / 4) * 3) + 975, 170, 32, 64)
   text("£75", (((1200 - 975) / 4) * 3) + 975, 210)
+  // bomb tower
+  image(bomb1, ((1200 - 975) / 4) + 975, 260, 32, 64)
+  text("£100", ((1200 - 975) / 4) + 975, 300)
 }
 
 function pauseGame() {
@@ -1053,6 +1254,12 @@ function pauseGame() {
   for (let i = 0; i < bulletArray.length; i++) {
     let bulletID = bulletArray[i]
     bulletID.show()
+  }
+
+  // showing any bombs
+  for (let i = 0; i < bombArray.length; i++) {
+    let bombID = bombArray[i]
+    bombID.show()
   }
 
   fill(128, 128, 128, 150)
