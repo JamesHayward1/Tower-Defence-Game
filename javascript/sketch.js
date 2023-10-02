@@ -52,6 +52,13 @@ let end = false;
 let levelComplete = false;
 let pause = false;
 
+// upgrade arrays
+// damage, cooldown, range
+let archerUpgrades = [1, 60, 300, 1, 30, 300];
+let bombUpgrades = [1, 90, 220, 2, 90, 220];
+let frostUpgrades = [null, null, 250, null, null, 280];
+let missileUpgrades = [2, 120, 550, 3, 120, 550];
+
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
   mainMenuBG = loadImage("Images/mainMenuBG.png")
@@ -243,7 +250,7 @@ function mouseClicked() {
         }
       }
 
-      // selling towers
+      // selling towers and upgrading towers 
       let sellable = false
       let sellableTower;
       let towerArrayPosition;
@@ -257,12 +264,98 @@ function mouseClicked() {
           break
         }
       }
-      // if sell button is on screen, sells tower and returns money
+      // if whether to sell or upgrade
       if (sellable) {
         if (mouseX > 37.5 && mouseX < 37.5 + 150 && mouseY > 530 && mouseY < 530 + 45) {
           let money = Math.floor(sellableTower.totalCost / 2) // makes sure number is an integer
           currency += money
           towerArray.splice(towerArrayPosition, 1)
+        } else if (mouseX > 37.5 && mouseX < 37.5 + 150 && mouseY > 470 && mouseY < 470 + 45) {
+          let towerID = towerArray[towerArrayPosition]
+          if (towerID.level != 3) {
+            if (towerID.type == "Archer") {
+              // upgrading archer tower
+              if (towerID.level == 1) {
+                if (currency >= towerID.cost) {
+                  towerID.damage = archerUpgrades[0]
+                  towerID.cooldown = archerUpgrades[1]
+                  towerID.radius = archerUpgrades[2]
+                  towerID.level++
+                  currency -= towerID.cost
+                  towerID.totalCost += towerID.cost
+                }
+              } else if (towerID.level == 2) {
+                if (currency >= (towerID.cost * 2)) {
+                  towerID.damage = archerUpgrades[3]
+                  towerID.cooldown = archerUpgrades[4]
+                  towerID.radius = archerUpgrades[5]  
+                  towerID.level++ 
+                  currency -= (towerID.cost * 2)
+                  towerID.totalCost += (towerID.cost * 2)      
+                }
+              }
+            } else if (towerID.type == "Bomb") {
+              if (towerID.level == 1) {
+                if (currency >= towerID.cost) {
+                  towerID.damage = bombUpgrades[0]
+                  towerID.cooldown = bombUpgrades[1]
+                  towerID.radius = bombUpgrades[2]
+                  towerID.level++
+                  currency -= towerID.cost
+                  towerID.totalCost += towerID.cost
+                }
+              } else if (towerID.level == 2) {
+                if (currency >= (towerID.cost * 2)) {
+                  towerID.damage = bombUpgrades[3]
+                  towerID.cooldown = bombUpgrades[4]
+                  towerID.radius = bombUpgrades[5]
+                  towerID.level++
+                  currency -= (towerID.cost * 2)
+                  towerID.totalCost += (towerID.cost * 2)  
+                }
+              }
+            } else if (towerID.type == "Missile") {
+              if (towerID.level == 1) {
+                if (currency >= towerID.cost) {
+                  towerID.damage = missileUpgrades[0]
+                  towerID.cooldown = missileUpgrades[1]
+                  towerID.radius = missileUpgrades[2]
+                  towerID.level++
+                  currency -= towerID.cost
+                  towerID.totalCost += towerID.cost
+                }
+              } else if (towerID.level == 2) {
+                if (currency >= (towerID.cost * 2)) {
+                  towerID.damage = missileUpgrades[3]
+                  towerID.cooldown = missileUpgrades[4]
+                  towerID.radius = missileUpgrades[5]
+                  towerID.level++
+                  currency -= (towerID.cost * 2)
+                  towerID.totalCost += (towerID.cost * 2)  
+                }
+              }
+            } else if (towerID.type == "Frost") {
+              if (towerID.level == 1) {
+                if (currency >= towerID.cost) {
+                  towerID.damage = frostUpgrades[0]
+                  towerID.cooldown = frostUpgrades[1]
+                  towerID.radius = frostUpgrades[2]
+                  towerID.level++
+                  currency -= towerID.cost
+                  towerID.totalCost += towerID.cost
+                }
+              } else if (towerID.level == 2) {
+                if (currency >= (towerID.cost * 2)) {
+                  towerID.damage = frostUpgrades[3]
+                  towerID.cooldown = frostUpgrades[4]
+                  towerID.radius = frostUpgrades[5]
+                  towerID.level++
+                  currency -= (towerID.cost * 2)
+                  towerID.totalCost += (towerID.cost * 2)  
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -977,12 +1070,13 @@ function towerMenu() {
     text("Level: " + selectedTower.level, 20, 240)
     // tower explaination
     fill(228, 194, 144)
-    rect(112.5, 315, 205, 87.5, 10)
+    rect(112.5, 327.5, 205, 112.5, 10)
     fill(256, 256, 256)
     textAlign(CENTER, CENTER);
     text("The frost tower", 112.5, 287.5)
-    text("slows enemies in", 112.5, 312.5)
-    text("its radius", 112.5, 337.5)
+    text("slows enemies", 112.5, 312.5)
+    text("movement", 112.5, 337.5)
+    text("in its radius", 112.5, 362.5)
     textAlign(LEFT, CENTER);
   } else if (selectedTower.type == "Bomb") {
     rect(112.5, 243.75, 205, 97.5, 10)
@@ -1010,19 +1104,45 @@ function towerMenu() {
   }
   if (selectedTower.level != 3 && selectedTower.placed) {
     if (selectedTower.type == "Frost") {
-      text("Upgrade to level: " + (selectedTower.level + 1), 20, 380)
-      text("Range: ", 20, 410)
-      text("Cooldown: ", 20, 440)
+      text("Upgrade to level: " + (selectedTower.level + 1), 20, 410)
+      if (selectedTower.level == 1) {
+        text("Range: " + frostUpgrades[2], 20, 440)
+      } else {
+        text("Range: " + frostUpgrades[5], 20, 440)
+      }
     } else if (selectedTower.type == "Bomb") {
       text("Upgrade to level: " + (selectedTower.level + 1), 20, 380)
-      text("Damage: ", 20, 410)
-      text("Cooldown: ", 20, 440)
-    } else {
+      if (selectedTower.level == 1) {
+        text("Damage: " + bombUpgrades[0], 20, 410)
+        text("Cooldown: " + (bombUpgrades[1] / 60), 20, 440)
+      } else {
+        text("Damage: " + bombUpgrades[3], 20, 410)
+        text("Cooldown: " + (bombUpgrades[4] / 60), 20, 440)
+      }
+    } else if (selectedTower.type == "Archer") {
       text("Upgrade to level: " + (selectedTower.level + 1), 20, 350)
-      text("Range: ", 20, 380)
-      text("Damage: ", 20, 410)
-      text("Cooldown: ", 20, 440)
+      if (selectedTower.level == 1) {
+        text("Damage: " + archerUpgrades[0], 20, 380)
+        text("Cooldown: " + (archerUpgrades[1] / 60), 20, 410)
+        text("Range: " + archerUpgrades[2], 20, 440)
+      } else {
+        text("Damage: " + archerUpgrades[3], 20, 380)
+        text("Cooldown: " + (archerUpgrades[4] / 60), 20, 410)
+        text("Range: " + archerUpgrades[5], 20, 440)
+      }
+    } else if (selectedTower.type == "Missile") {
+      text("Upgrade to level: " + (selectedTower.level + 1), 20, 350)
+      if (selectedTower.level == 1) {
+        text("Damage: " + missileUpgrades[0], 20, 380)
+        text("Cooldown: " + (missileUpgrades[1] / 60), 20, 410)
+        text("Range: " + missileUpgrades[2], 20, 440)
+      } else {
+        text("Damage: " + missileUpgrades[3], 20, 380)
+        text("Cooldown: " + (missileUpgrades[4] / 60), 20, 410)
+        text("Range: " + missileUpgrades[5], 20, 440)
+      }
     }
+
     textAlign(CENTER, CENTER);
     fill(228, 194, 144)
     rect(112.5, 492.5, 150, 45, 10)
