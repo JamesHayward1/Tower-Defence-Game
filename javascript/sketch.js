@@ -59,6 +59,10 @@ let bombUpgrades = [1, 90, 220, 2, 90, 220];
 let frostUpgrades = [null, null, 250, null, null, 280];
 let missileUpgrades = [2, 120, 550, 3, 120, 550];
 
+// sounds
+let buttonSound;
+let damageSound;
+
 function preload() {
   mapOne = loadImage("Images/mapOne.png")
   mainMenuBG = loadImage("Images/mainMenuBG.png")
@@ -83,6 +87,9 @@ function preload() {
   bomb1 = loadImage("Images/Bomb/bomb1.png")
   bomb2 = loadImage("Images/Bomb/bomb2.png")
   bomb3 = loadImage("Images/Bomb/bomb3.png")
+  // sounds
+  buttonSound = loadSound("Sounds/buttonSound.mp3")
+  damageSound = loadSound("Sounds/damageSound.mp3")
 }
 
 function setup() {
@@ -169,19 +176,22 @@ function mouseClicked() {
   if (toggles.inputs) {
     // mouse input to start game
     if (start == false) {
-      if (mouseX > 25 && mouseX < 25 + 50 && mouseY > 525 && mouseY < 525 + 50) {
+      if (mouseX > 25 && mouseX < 25 + 50 && mouseY > 525 && mouseY < 525 + 50  && !infoScreen) {
         infoScreen = true
+        buttonSound.play()
       }
     } else if (mapSelection) {
       // input to select map
       if (mouseX > 200 && mouseX < 200 + 200 && mouseY > 162.5 && mouseY < 162.5 + 275) {
         mapSelection = false
         map = 1
+        buttonSound.play()
       } 
     } else if (mapSelection == false) {
       // level start
       if (mouseX > 1012.5 && mouseX < 1012.5 + 140 && mouseY > 545 && mouseY < 545 + 40) {
         if (levelUnderway == false) {
+          buttonSound.play()
           let notPlayable = false
           for (let i = 0; i < towerArray.length; i++) {
             let identifier = towerArray[i]
@@ -203,6 +213,7 @@ function mouseClicked() {
         if (identifier.placable) {
           if (identifier.placed == false) {
             if (identifier.cost <= currency) {
+              buttonSound.play()
               identifier.placed = true
               currency = currency - identifier.cost
             }
@@ -221,12 +232,16 @@ function mouseClicked() {
           }
         }
         if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          buttonSound.play()
           towerArray.push(new tower(mouseX, mouseY, false, "Archer", 220, 1, false, true, 1, 60, 50, null, null, true, 0, null, 50)) // archer tower
         } else if (mouseX > 1071.5 && mouseX < 1071.5 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          buttonSound.play()
           towerArray.push(new tower(mouseX, mouseY, false, "Frost", 220, 1, false, true, null, null, 75, null, null, true, 0, null, 75)) // Frost tower
         } else if (mouseX > 1127.75 && mouseX < 1127.75 + 32 && mouseY > 138 && mouseY < 138 + 64 && unplaced == false) {
+          buttonSound.play()
           towerArray.push(new tower(mouseX, mouseY, false, "Missile", 500, 1, false, true, 2, 150, 75, null, null, true, 0, null, 75)) // missile tower
         } else if (mouseX > 1015.25 && mouseX < 1015.25 + 32 && mouseY > 228 && mouseY < 228 + 64 && unplaced == false) {
+          buttonSound.play()
           towerArray.push(new tower(mouseX, mouseY, false, "Bomb", 220, 1, false, true, 1, 120, 100, null, null, true, 0, null, 100)) // bomb tower
         }
       }
@@ -238,11 +253,15 @@ function mouseClicked() {
           if (!(mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32)) {
             if (mouseX > 0 && mouseX < 1200 && mouseY > 0 && mouseY < 600 && mouseX > 225 && mouseX < 975) {
               identifier.selected = false
+              buttonSound.play()
             }
           }
         }
         // reselecting towers 
         if (mouseX > identifier.x - 16 && mouseX < identifier.x + 16 && mouseY > identifier.y - 32 && mouseY < identifier.y + 32) {
+          if (!identifier.selected) {
+            buttonSound.play()
+          }
           for (let j = 0; j < towerArray.length; j++) {
             let identifier2 = towerArray[j]
             identifier2.selected = false
@@ -271,6 +290,7 @@ function mouseClicked() {
           let money = Math.floor(sellableTower.totalCost / 2) // makes sure number is an integer
           currency += money
           towerArray.splice(towerArrayPosition, 1)
+          buttonSound.play()
         } else if (mouseX > 37.5 && mouseX < 37.5 + 150 && mouseY > 470 && mouseY < 470 + 45) {
           let towerID = towerArray[towerArrayPosition]
           if (towerID.level != 3) {
@@ -278,6 +298,7 @@ function mouseClicked() {
               // upgrading archer tower
               if (towerID.level == 1) {
                 if (currency >= towerID.cost) {
+                  buttonSound.play()
                   towerID.damage = archerUpgrades[0]
                   towerID.cooldown = archerUpgrades[1]
                   towerID.radius = archerUpgrades[2]
@@ -287,6 +308,7 @@ function mouseClicked() {
                 }
               } else if (towerID.level == 2) {
                 if (currency >= (towerID.cost * 2)) {
+                  buttonSound.play()
                   towerID.damage = archerUpgrades[3]
                   towerID.cooldown = archerUpgrades[4]
                   towerID.radius = archerUpgrades[5]  
@@ -298,6 +320,7 @@ function mouseClicked() {
             } else if (towerID.type == "Bomb") {
               if (towerID.level == 1) {
                 if (currency >= towerID.cost) {
+                  buttonSound.play()
                   towerID.damage = bombUpgrades[0]
                   towerID.cooldown = bombUpgrades[1]
                   towerID.radius = bombUpgrades[2]
@@ -307,6 +330,7 @@ function mouseClicked() {
                 }
               } else if (towerID.level == 2) {
                 if (currency >= (towerID.cost * 2)) {
+                  buttonSound.play()
                   towerID.damage = bombUpgrades[3]
                   towerID.cooldown = bombUpgrades[4]
                   towerID.radius = bombUpgrades[5]
@@ -318,6 +342,7 @@ function mouseClicked() {
             } else if (towerID.type == "Missile") {
               if (towerID.level == 1) {
                 if (currency >= towerID.cost) {
+                  buttonSound.play()
                   towerID.damage = missileUpgrades[0]
                   towerID.cooldown = missileUpgrades[1]
                   towerID.radius = missileUpgrades[2]
@@ -327,6 +352,7 @@ function mouseClicked() {
                 }
               } else if (towerID.level == 2) {
                 if (currency >= (towerID.cost * 2)) {
+                  buttonSound.play()
                   towerID.damage = missileUpgrades[3]
                   towerID.cooldown = missileUpgrades[4]
                   towerID.radius = missileUpgrades[5]
@@ -338,6 +364,7 @@ function mouseClicked() {
             } else if (towerID.type == "Frost") {
               if (towerID.level == 1) {
                 if (currency >= towerID.cost) {
+                  buttonSound.play()
                   towerID.damage = frostUpgrades[0]
                   towerID.cooldown = frostUpgrades[1]
                   towerID.radius = frostUpgrades[2]
@@ -347,6 +374,7 @@ function mouseClicked() {
                 }
               } else if (towerID.level == 2) {
                 if (currency >= (towerID.cost * 2)) {
+                  buttonSound.play()
                   towerID.damage = frostUpgrades[3]
                   towerID.cooldown = frostUpgrades[4]
                   towerID.radius = frostUpgrades[5]
@@ -366,6 +394,7 @@ function mouseClicked() {
     if (levelComplete) {
       if (mouseX > 525 && mouseX < 525 + 150 && mouseY > 310 && mouseY < 310 + 40) {
         levelComplete = false
+        buttonSound.play()
         toggles = {
           inputs: true,
           processes: true,
@@ -377,6 +406,7 @@ function mouseClicked() {
     if (pause) {
       if (mouseX > 525 && mouseX < 525 + 150 && mouseY > 380 && mouseY < 380 + 40) {
         pause = false
+        buttonSound.play()
         toggles = {
           inputs: true,
           processes: true,
@@ -393,19 +423,14 @@ function keyPressed() {
     if (start == false && infoScreen == false) {
       if (keyCode == 32) {
         start = true
+        buttonSound.play()
       } else if (keyCode == 73) {
         infoScreen = true
+        buttonSound.play()
       }
     } else if (infoScreen) {
       if (keyCode == 27) {
         infoScreen = false
-      }
-    }
-
-    // back to main menu from end screen
-    if (end) {
-      if (keyCode == 32) {
-        restart()
       }
     }
     
@@ -422,6 +447,7 @@ function keyPressed() {
         // pressing escape to close tower menu
         if (keyCode == 27) {
           identifier.selected = false
+          buttonSound.play()
           pausable = false
         }
       }
@@ -439,6 +465,14 @@ function keyPressed() {
     }
 
   } else {
+    // back to main menu from end screen
+    if (end) {
+      if (keyCode == 32) {
+        buttonSound.play()
+        restart()
+      }
+    }
+
     // closing level complete menu
     if (levelComplete) {
       if (keyCode == 27) {
@@ -783,6 +817,7 @@ function processes() {
     }
     if (dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y) < 21) {
       enemyID.health -= towerID.damage
+      damageSound.play()
       if (enemyID.health <= 0) {
         let num = 0
         for (let j = 0; j < enemyArray.length; j++) {
@@ -963,6 +998,7 @@ function processes() {
       if (distance <= 10) {
         let towerID = bombID.assignedTower
         enemyID.health -= towerID.damage
+        damageSound.play()
         if (enemyID.health <= 0) {
           enemyArray.splice(j, 1)
         }
