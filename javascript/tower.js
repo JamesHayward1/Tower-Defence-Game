@@ -31,10 +31,6 @@ class tower {
             if (this.placed == false) {
                 ellipse(this.x, this.y, this.radius)
                 image(archer1, this.x, this.y, 32, 64)
-                fill(255, 255, 255)
-                textAlign(CENTER, CENTER); 
-                textSize(25)
-                text("Press escape to cancel", width/2, 570)
             } else if (this.placed) {
                 if (this.level == 1) {
                     image(archer1, this.x, this.y, 32, 64)
@@ -48,10 +44,6 @@ class tower {
             if (this.placed == false) {
                 ellipse(this.x, this.y, this.radius)
                 image(frost1, this.x, this.y, 32, 64)
-                fill(255, 255, 255)
-                textAlign(CENTER, CENTER); 
-                textSize(25)
-                text("Press escape to cancel", width/2, 570)
             } else if (this.placed) {
                 if (this.level == 1) {
                     image(frost1, this.x, this.y, 32, 64)
@@ -65,10 +57,6 @@ class tower {
             if (this.placed == false) {
                 ellipse(this.x, this.y, this.radius)
                 image(missile1, this.x, this.y, 32, 64)
-                fill(255, 255, 255)
-                textAlign(CENTER, CENTER); 
-                textSize(25)
-                text("Press escape to cancel", width/2, 570)
             } else if (this.placed) {
                 if (this.level == 1) {
                     image(missile1, this.x, this.y, 32, 64)
@@ -82,10 +70,6 @@ class tower {
             if (this.placed == false) {
                 ellipse(this.x, this.y, this.radius)
                 image(bomb1, this.x, this.y, 32, 64)
-                fill(255, 255, 255)
-                textAlign(CENTER, CENTER); 
-                textSize(25)
-                text("Press escape to cancel", width/2, 570)
             } else if (this.placed) {
                 if (this.level == 1) {
                     image(bomb1, this.x, this.y, 32, 64)
@@ -95,6 +79,12 @@ class tower {
                     image(bomb3, this.x, this.y, 32, 64)
                 }
             }
+        }
+        if (this.placed == false) {
+            fill(255, 255, 255)
+            textAlign(CENTER, CENTER); 
+            textSize(25)
+            text("Press escape to cancel", width/2, 570)
         }
     }
 }

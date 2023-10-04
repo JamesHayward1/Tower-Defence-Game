@@ -87,6 +87,7 @@ function preload() {
 
 function setup() {
   createCanvas(1200, 600);
+  frameRate(60)
 }
 
 function draw() {
@@ -777,6 +778,9 @@ function processes() {
     let bulletID = bulletArray[i - bulletDeleted]
     let towerID = bulletID.assignedTower
     let enemyID = towerID.assignedEnemy
+    if (enemyArray.length == 0) {
+      break
+    }
     if (dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y) < 21) {
       enemyID.health -= towerID.damage
       if (enemyID.health <= 0) {
