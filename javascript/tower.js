@@ -80,11 +80,5 @@ class tower {
                 }
             }
         }
-        if (this.placed == false) {
-            fill(255, 255, 255)
-            textAlign(CENTER, CENTER); 
-            textSize(25)
-            text("Press escape to cancel", width/2, 570)
-        }
     }
 }

@@ -51,6 +51,7 @@ let levelChange = true;
 let end = false;
 let levelComplete = false;
 let pause = false;
+let currencyLost = 0;
 
 // upgrade arrays
 // damage, cooldown, range
@@ -133,7 +134,8 @@ function draw() {
       if (level != 50) {
         level++
         levelChange = true
-        currency += 50
+        currency += (50 - currencyLost)
+        currencyLost = 0
         levelComplete = true
         for (let i = 0; i < towerArray.length; i++) {
           let towerID = towerArray[i]
@@ -571,7 +573,8 @@ function processes() {
       identifier.x = 1200 - 16
     } else if (identifier.x <= 0 + 16) {
       identifier.x = 0 + 16
-    } else if (identifier.y >= 600 - 32) {
+    }
+    if (identifier.y >= 600 - 32) {
       identifier.y = 600 - 32
     } else if (identifier.y <= 0 + 32) {
       identifier.y = 0 + 32
@@ -627,7 +630,7 @@ function processes() {
       let identifier = enemyArray[i]
       if (identifier.stage == 1) {
         if (identifier.frost) {
-          identifier.y += (identifier.speed / 2)
+          identifier.y += (identifier.speed / 3) * 2
         } else {
           identifier.y += identifier.speed
         }
@@ -637,7 +640,7 @@ function processes() {
         }
       } else if (identifier.stage == 2) {
         if (identifier.frost) {
-          identifier.x += (identifier.speed / 2)
+          identifier.x += (identifier.speed / 3) * 2
         } else {
           identifier.x += identifier.speed
         }
@@ -647,7 +650,7 @@ function processes() {
         }
       } else if (identifier.stage == 3) {
         if (identifier.frost) {
-          identifier.y += (identifier.speed / 2)
+          identifier.y += (identifier.speed / 3) * 2
         } else {
           identifier.y += identifier.speed
         }
@@ -657,7 +660,7 @@ function processes() {
         }
       } else if (identifier.stage == 4) {
         if (identifier.frost) {
-          identifier.x -= (identifier.speed / 2)
+          identifier.x -= (identifier.speed / 3) * 2
         } else {
           identifier.x -= identifier.speed
         }
@@ -667,7 +670,7 @@ function processes() {
         }
       } else if (identifier.stage == 5) {
         if (identifier.frost) {
-          identifier.y += (identifier.speed / 2)
+          identifier.y += (identifier.speed / 3) * 2
         } else {
           identifier.y += identifier.speed
         }
@@ -677,7 +680,7 @@ function processes() {
         }
       } else if (identifier.stage == 6) {
         if (identifier.frost) {
-          identifier.x -= (identifier.speed / 2)
+          identifier.x -= (identifier.speed / 3) * 2
         } else {
           identifier.x -= identifier.speed
         }
@@ -687,7 +690,7 @@ function processes() {
         }
       } else if (identifier.stage == 7) {
         if (identifier.frost) {
-          identifier.y += (identifier.speed / 2)
+          identifier.y += (identifier.speed / 3) * 2
         } else {
           identifier.y += identifier.speed
         }
@@ -697,7 +700,7 @@ function processes() {
         }
       } else if (identifier.stage == 8) {
         if (identifier.frost) {
-          identifier.x += (identifier.speed / 2)
+          identifier.x += (identifier.speed / 3) * 2
         } else {
           identifier.x += identifier.speed
         }
@@ -707,20 +710,26 @@ function processes() {
         }
       } else if (identifier.stage == 9) {
         if (identifier.frost) {
-          identifier.y += (identifier.speed / 2)
+          identifier.y += (identifier.speed / 3) * 2
         } else {
           identifier.y += identifier.speed
         }
         identifier.show()
         if (identifier.y >= 650) {
-          enemyArray.splice(i, 1)
           health = health - identifier.health
+          if (identifier.health == 1 || identifier.health == 2 || identifier.health == 3 ||identifier.health == 4) {
+            currencyLost += 1
+          } else {
+            currencyLost += 2
+          }
+          enemyArray.splice(i, 1)
         }
       }
     }
   }
 
   // detecting enemies in attack radius
+  let frosted = false;
   for (let i = 0; i < towerArray.length; i++) {
     let towerID = towerArray[i]
     for (let j = 0; j < enemyArray.length; j++) {
@@ -729,6 +738,7 @@ function processes() {
       if ((distance <= towerID.radius / 2) && towerID.enemyX == null && towerID.enemyY == null && towerID.assignedEnemy == null && enemyID.y > 0 && enemyID.y < 600 && towerID.active && towerID.type != "Bomb") {
         if (towerID.type == "Frost") {
           enemyID.frost = true
+          frosted = true
         } else {
           let towerDamage = 0;
           for (let k = 0; k < towerArray.length; k++) {
@@ -755,7 +765,7 @@ function processes() {
           }
         }
       } else {
-        if (towerID.type == "Frost") {
+        if (towerID.type == "Frost" && !frosted) {
           enemyID.frost = false
         }
       }
@@ -765,7 +775,7 @@ function processes() {
   // calculations for heat seaking missile
   for (let i = 0; i < towerArray.length; i++) {
     let towerID = towerArray[i]
-    if (towerID.type == "Missile" && towerID.assignedEnemy != null) {
+    if ((towerID.type == "Missile" && towerID.assignedEnemy != null) || (towerID.type == "Archer" && towerID.assignedEnemy != null)) {
       let bulletID
       for (let j = 0; j < bulletArray.length; j++) {
         let identifier = bulletArray[j]
@@ -812,7 +822,7 @@ function processes() {
     let bulletID = bulletArray[i - bulletDeleted]
     let towerID = bulletID.assignedTower
     let enemyID = towerID.assignedEnemy
-    if (enemyArray.length == 0) {
+    if (enemyArray.length == 0 || enemyID == null) {
       break
     }
     if (dist(bulletID.x, bulletID.y, enemyID.x, enemyID.y) < 21) {
@@ -1016,6 +1026,17 @@ function processes() {
         towerID.active = true
         towerID.counter = 0
       }
+    }
+  }
+
+  // cancelling tower purchase message
+  for (let i = 0; i < towerArray.length; i++) {
+    let towerID = towerArray[i]
+    if (!towerID.placed) {
+      fill(255, 255, 255)
+      textAlign(CENTER, CENTER); 
+      textSize(25)
+      text("Press escape to cancel", width/2, 570)
     }
   }
 }
@@ -1281,8 +1302,53 @@ function endMenu() {
 }  
 
 function restart() {
+  // making all the arrays of objects empty
+  let towerArrayLength = towerArray.length
+  let towersDeleted = 0
+  for (let i = 0; i < towerArrayLength; i++) {
+    towerArray.splice(i - towersDeleted, 1)
+    towersDeleted++
+  }
+  let enemyArrayLength = enemyArray.length
+  let enemiesDeleted = 0
+  for (let i = 0; i < enemyArrayLength; i++) {
+    enemyArray.splice(i - enemiesDeleted, 1)
+    enemiesDeleted++
+  }
+  let bulletArrayLength = bulletArray.length
+  let bulletsDeleted = 0
+  for (let i = 0; i < bulletArrayLength; i++) {
+    bulletArray.splice(i - bulletsDeleted, 1)
+    bulletsDeleted++
+  }
+  let bombArrayLength = bombArray.length
+  let bombsDeleted = 0
+  for (let i = 0; i < bombArrayLength; i++) {
+    bombArray.splice(i - bombsDeleted, 1)
+    bombsDeleted++
+  }
   // reset all variables to go back to main menu
-  console.log("Main menu")
+  toggles = {
+    inputs: true,
+    processes: true,
+    outputs: true,
+  } 
+  map = 1;
+  start = false;
+  mapSelection = true;
+  health = 100;
+  level = 1;
+  currency = 50;
+  levelUnderway = false;
+  infoScreen = false;
+  levels;
+  spawning = false;
+  spawnCountdown = 0;
+  levelChange = true;
+  end = false;
+  levelComplete = false;
+  pause = false;
+  currencyLost = 0;
 }
 
 function levelCompleteMessage() {
