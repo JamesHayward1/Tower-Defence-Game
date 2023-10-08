@@ -1243,7 +1243,7 @@ function infoMenu() {
   text("You start with 100 health, and lose health when enemies reach the end of the path without being killed by the towers", width/2, 310)
   text("When you reach zero health, you lose the game", width/2, 340)
   text("You start the game with enough currency to buy one tower", width/2, 390)
-  text("You gain curreny by killing enemies, and get a bonus at the end of each level", width/2, 420)
+  text("You get a currency at the end of each level depending on how many enemies you manage to kill", width/2, 420)
   text("There are 50 levels which scale in difficulty. If you complete the 50th level without losing all your health, you win the game", width/2, 470)
   textSize(30)
   text("Press escape to close this menu", width/2, 530)
